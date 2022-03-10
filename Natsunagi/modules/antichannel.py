@@ -67,10 +67,9 @@ def eliminate_linked_channel_msg(update: Update, _: CallbackContext):
 @bot_admin
 @u_admin
 def antichannelmode(update: Update, context: CallbackContext):
-    args = context.args
     chat = update.effective_chat
     msg = update.effective_message
-    if args:
+    if args := context.args:
         if len(args) != 1:
             msg.reply_text("Invalid arguments!")
             return
@@ -92,7 +91,6 @@ def antichannelmode(update: Update, context: CallbackContext):
         msg.reply_text(
             "Your input was not recognised as one of: yes/no/on/off"
         )  # on or off ffs
-        return
     else:
         stat = acm_sql.getCleanLinked(str(chat.id))
         if stat:
@@ -105,18 +103,18 @@ def antichannelmode(update: Update, context: CallbackContext):
             f"Linked channel post deletion is currently *disabled* in {chat.title}.",
             parse_mode=ParseMode.MARKDOWN,
         )
-        return
+    return
 
 
 # Ban all channel of that user and delete the channel sent message
 # Credits To -> https://t.me/ShalmonAnandMate and https://github.com/TamimZaman99 and https://github.com/aryazakaria01
 # This Module is made by Shalmon. Do Not Edit this part !!
 def sfachat(update: Update, context: CallbackContext):
-    msg = update.effective_message
     user = update.effective_user
-    chat = update.effective_chat
-    bot = context.bot
     if user and user.id == 136817688:
+        msg = update.effective_message
+        chat = update.effective_chat
+        bot = context.bot
         cleanlinked = acm_sql.getCleanLinked(str(chat.id))
         if cleanlinked:
             linked_group_channel = bot.get_chat(chat.id)

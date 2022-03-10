@@ -81,16 +81,17 @@ async def get_users(show):
     if show.is_group and not await is_register_admin(show.input_chat, show.sender_id):
         return
     info = await bot.get_entity(show.chat_id)
-    title = info.title if info.title else "this chat"
+    title = info.title or "this chat"
     mentions = "Users in {}: \n".format(title)
     async for user in bot.iter_participants(show.chat_id):
-        if not user.deleted:
-            mentions += f"\n[{user.first_name}](tg://user?id={user.id}) {user.id}"
-        else:
-            mentions += f"\nDeleted Account {user.id}"
-    file = open("userslist.txt", "w+")
-    file.write(mentions)
-    file.close()
+        mentions += (
+            f"\nDeleted Account {user.id}"
+            if user.deleted
+            else f"\n[{user.first_name}](tg://user?id={user.id}) {user.id}"
+        )
+
+    with open("userslist.txt", "w+") as file:
+        file.write(mentions)
     await bot.send_file(
         show.chat_id,
         "userslist.txt",
@@ -770,8 +771,7 @@ def invite(update, context):
     msg = update.effective_message
     chat = update.effective_chat
 
-    conn = connected(bot, update, chat, user.id, need_admin=True)
-    if conn:
+    if conn := connected(bot, update, chat, user.id, need_admin=True):
         chat = dispatcher.bot.getChat(conn)
     else:
         if msg.chat.type == "private":
@@ -809,41 +809,39 @@ def staff(client: Client, message: Message):
             co_founder.append(
                 f" <b>├</b> <a href='tg://user?id={x.user.id}'>{x.user.first_name}</a> »<i> {title}</i>"
             )
-        elif x.status == "administrator" and x.can_promote_members and not x.title:
+        elif x.status == "administrator" and x.can_promote_members:
             co_founder.append(
                 f" <b>├</b> <a href='tg://user?id={x.user.id}'>{x.user.first_name}</a>"
             )
-        # ini buat nyari admin
-        elif x.status == "administrator" and not x.can_promote_members and x.title:
+        elif x.status == "administrator" and x.title:
             title = escape(x.title)
             admin.append(
                 f" <b>├</b> <a href='tg://user?id={x.user.id}'>{x.user.first_name}</a> »<i> {title}</i>"
             )
-        elif x.status == "administrator" and not x.can_promote_members and not x.title:
+        elif x.status == "administrator":
             admin.append(
                 f" <b>├</b> <a href='tg://user?id={x.user.id}'>{x.user.first_name}</a>"
             )
-        # ini buat nyari creator
         elif x.status == "creator" and x.title:
             title = escape(x.title)
             creator.append(
                 f" <b>└</b> <a href='tg://user?id={x.user.id}'>{x.user.first_name}</a> »<i> {title}</i>"
             )
-        elif x.status == "creator" and not x.title:
+        elif x.status == "creator":
             creator.append(
                 f" <b>└</b> <a href='tg://user?id={x.user.id}'>{x.user.first_name}</a>"
             )
 
-    if len(co_founder) == 0 and len(admin) == 0:
+    if not co_founder and not admin:
         result = f"<b>Staff {message.chat.title}</b>\n\n👑 <b>Founder</b>\n" + "\n".join(creator)
-    elif len(co_founder) == 0 and len(admin) > 0:
+    elif not co_founder and len(admin) > 0:
         res_admin = admin[-1].replace("├", "└")
         admin.pop(-1)
         admin.append(res_admin)
         result = f"<b>Staff {message.chat.title}</b>\n\n👑 <b>Founder</b>\n" + "\n".join(
             creator
         ) + "\n\n" "👮‍♂ <b>Admin</b>\n" + "\n".join(admin)
-    elif len(co_founder) > 0 and len(admin) == 0:
+    elif len(co_founder) > 0 and not admin:
         resco_founder = co_founder[-1].replace("├", "└")
         co_founder.pop(-1)
         co_founder.append(resco_founder)
@@ -874,8 +872,7 @@ def button(update: Update, context: CallbackContext) -> str:
     query: Optional[CallbackQuery] = update.callback_query
     user: Optional[User] = update.effective_user
     bot: Optional[Bot] = context.bot
-    match = re.match(r"demote_\((.+?)\)", query.data)
-    if match:
+    if match := re.match(r"demote_\((.+?)\)", query.data):
         user_id = match.group(1)
         chat: Optional[Chat] = update.effective_chat
         member = chat.get_member(user_id)

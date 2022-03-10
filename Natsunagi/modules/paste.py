@@ -165,17 +165,8 @@ def spacepaste(update, context):
         print(paste_text)
         os.remove("file.txt")
 
-    elif message.reply_to_message.text:
-        paste_text = message.reply_to_message.text
-    elif len(args) >= 1:
-        paste_text = message.text.split(None, 1)[1]
-
     else:
-        message.reply_text(
-            "reply to any message or just do /paste <what you want to paste>"
-        )
-        return
-
+        paste_text = message.reply_to_message.text
     extension = "txt"
     url = "https://spaceb.in/api/v1/documents/"
     try:
@@ -230,10 +221,11 @@ def paste(update: Update, context: CallbackContext):
 
     txt = ""
     paste_url = upload_text(data)
-    if not paste_url:
-        txt = "Failed to paste data"
-    else:
-        txt = "Successfully uploaded to [PrivateBin]({})".format(paste_url)
+    txt = (
+        "Successfully uploaded to [PrivateBin]({})".format(paste_url)
+        if paste_url
+        else "Failed to paste data"
+    )
 
     message.reply_text(txt, disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
 

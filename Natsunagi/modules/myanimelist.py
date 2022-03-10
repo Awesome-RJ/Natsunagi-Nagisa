@@ -113,7 +113,7 @@ def character(update: Update, context: CallbackContext):
         about = re.sub(r"\\n", r"\n", about)
         about = re.sub(r"\r\n", r"", about)
         if len(about) > 4096:
-            about = about[:4000] + "..."
+            about = f'{about[:4000]}...'
         image = res.get("image_url")
         url = res.get("url")
         rep = f"<b>{name} ({kanji})</b>\n\n"

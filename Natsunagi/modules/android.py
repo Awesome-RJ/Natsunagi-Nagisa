@@ -197,10 +197,9 @@ def twrp(update, context):
 @typing_action
 def orangefox(update, _):
     message = update.effective_message
-    devices = message.text[len("/orangefox ") :]
     btn = ""
 
-    if devices:
+    if devices := message.text[len("/orangefox ") :]:
         link = get(
             f"https://api.orangefox.download/v3/releases/?codename={devices}&sort=date_desc&limit=1"
         )
@@ -263,7 +262,7 @@ def los(update, context) -> str:
     except Exception:
         device = ""
 
-    if device == "":
+    if not device:
         reply_text = "*Please Type Your Device Codename*\nExample : `/los lavender`"
         message.reply_text(
             reply_text,
@@ -333,7 +332,7 @@ def bootleg(update, context) -> str:
     except Exception:
         codename = ""
 
-    if codename == "":
+    if not codename:
         message.reply_text(
             "*Please Type Your Device Codename*\nExample : `/bootleg lavender`",
             parse_mode=ParseMode.MARKDOWN,
@@ -408,10 +407,10 @@ def checkfw(update: Update, context: CallbackContext):
     args = context.args
     message = update.effective_message
     chat = update.effective_chat
-    
+
     if len(args) == 2:
         temp, csc = args
-        model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
+        model = temp if temp.upper().startswith('SM-') else f'sm-{temp}'
         fota = get(
             f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
         )
@@ -444,9 +443,7 @@ def checkfw(update: Update, context: CallbackContext):
         disable_web_page_preview = True,
     )
 
-    cleartime = get_clearcmd(chat.id, "checkfw")
-
-    if cleartime:
+    if cleartime := get_clearcmd(chat.id, "checkfw"):
         context.dispatcher.run_async(delete, delmsg, cleartime.time)
 
 
@@ -456,10 +453,10 @@ def getfw(update: Update, context: CallbackContext):
     message = update.effective_message
     chat = update.effective_chat
     btn = ""
-    
+
     if len(args) == 2:
         temp, csc = args
-        model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
+        model = temp if temp.upper().startswith('SM-') else f'sm-{temp}'
         fota = get(
             f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
         )
@@ -488,10 +485,10 @@ def getfw(update: Update, context: CallbackContext):
                     msg += f'× Android: `{os}`\n'
             msg += '\n'
             msg += f'*Downloads for {model.upper()} and {csc.upper()}*\n'
-            btn = [[InlineKeyboardButton(text=f"samfrew.com", url = url1)]]
-            btn += [[InlineKeyboardButton(text=f"sammobile.com", url = url2)]]
-            btn += [[InlineKeyboardButton(text=f"sfirmware.com", url = url3)]]
-            btn += [[InlineKeyboardButton(text=f"samfw.com", url = url4)]]
+            btn = [[InlineKeyboardButton(text="samfrew.com", url = url1)]]
+            btn += [[InlineKeyboardButton(text="sammobile.com", url = url2)]]
+            btn += [[InlineKeyboardButton(text="sfirmware.com", url = url3)]]
+            btn += [[InlineKeyboardButton(text="samfw.com", url = url4)]]
     else:
         msg = 'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
 
@@ -502,9 +499,7 @@ def getfw(update: Update, context: CallbackContext):
         disable_web_page_preview = True,
     )
 
-    cleartime = get_clearcmd(chat.id, "getfw")
-
-    if cleartime:
+    if cleartime := get_clearcmd(chat.id, "getfw"):
         context.dispatcher.run_async(delete, delmsg, cleartime.time)
 
 
@@ -522,9 +517,7 @@ def phh(update: Update, context: CallbackContext):
         disable_web_page_preview = True,
     )
 
-    cleartime = get_clearcmd(chat.id, "phh")
-
-    if cleartime:
+    if cleartime := get_clearcmd(chat.id, "phh"):
         context.dispatcher.run_async(delete, delmsg, cleartime.time)
 
 
@@ -538,11 +531,7 @@ def miui(update: Update, context: CallbackContext):
     if device:
         link = "https://raw.githubusercontent.com/XiaomiFirmwareUpdater/miui-updates-tracker/master/data/latest.yml"
         yaml_data = load(get(link).content, Loader=Loader)
-        data = [i for i in yaml_data if device in i['codename']]
-
-        if not data:
-            msg = f"Miui is not avaliable for {device}"
-        else:
+        if data := [i for i in yaml_data if device in i['codename']]:
             for fw in data:
                 av = fw['android']
                 branch = fw['branch']
@@ -551,13 +540,15 @@ def miui(update: Update, context: CallbackContext):
                 fname = fw['name']
                 version = fw['version']
                 size = fw['size']
-                btn = fname + ' | ' + branch + ' | ' + method + ' | ' + version + ' | ' + av + ' | ' + size
+                btn = f'{fname} | {branch} | {method} | {version} | {av} | {size}'
                 markup.append([InlineKeyboardButton(text = btn, url = link)])
 
             device = fname.split(" ")
             device.pop()
             device = " ".join(device)
             msg = f"The latest firmwares for the *{device}* are:"
+        else:
+            msg = f"Miui is not avaliable for {device}"
     else:
         msg = 'Give me something to fetch, like:\n`/miui whyred`'
 
@@ -568,9 +559,7 @@ def miui(update: Update, context: CallbackContext):
         disable_web_page_preview = True,
     )
 
-    cleartime = get_clearcmd(chat.id, "miui")
-
-    if cleartime:
+    if cleartime := get_clearcmd(chat.id, "miui"):
         context.dispatcher.run_async(delete, delmsg, cleartime.time)
 
 

@@ -129,21 +129,22 @@ def reply_afk(update, context):
 
 
 def check_afk(update, _, user_id: int, fst_name: int, userc_id: int):
-    if is_user_afk(user_id):
-        reason = afk_reason(user_id)
-        pussy = REDIS.get(f"afk_time_{user_id}")
-        if not pussy:
-            return
+    if not is_user_afk(user_id):
+        return
+    reason = afk_reason(user_id)
+    pussy = REDIS.get(f"afk_time_{user_id}")
+    if not pussy:
+        return
 
-        since_afk = get_readable_time((time.time() - float(pussy)))
-        if int(userc_id) == int(user_id):
-            return
-        if reason == "none":
-            res = f"<code>{fst_name}</code> is now away!\n\nLast seen: <code>{since_afk}</code>"
-        else:
-            res = f"<code>{fst_name}</code> is now away!\nReason: <code>{reason}</code>\n\nLast seen: <code>{since_afk}</code>"
+    since_afk = get_readable_time((time.time() - float(pussy)))
+    if userc_id == user_id:
+        return
+    if reason == "none":
+        res = f"<code>{fst_name}</code> is now away!\n\nLast seen: <code>{since_afk}</code>"
+    else:
+        res = f"<code>{fst_name}</code> is now away!\nReason: <code>{reason}</code>\n\nLast seen: <code>{since_afk}</code>"
 
-        update.effective_message.reply_text(res, parse_mode=ParseMode.HTML)
+    update.effective_message.reply_text(res, parse_mode=ParseMode.HTML)
 
 
 def __gdpr__(user_id):

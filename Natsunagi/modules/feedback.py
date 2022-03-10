@@ -14,7 +14,7 @@ async def feedback(e):
     quew = e.pattern_match.group(1)
     user_id = e.sender.id
     user_name = e.sender.first_name
-    mention = "[" + user_name + "](tg://user?id=" + str(user_id) + ")"
+    mention = f"[{user_name}](tg://user?id={str(user_id)})"
     NATSUNAGI = (
         "https://telegra.ph/file/753bfe51f0e0314f1f3ff.jpg",
         "https://telegra.ph/file/20bab4a499d6dccd823f1.jpg",
@@ -30,10 +30,8 @@ async def feedback(e):
         "https://telegra.ph/file/731387573fd96e3cfc2f5.jpg",
         "https://telegra.ph/file/6c9951e14cece66f2fc3a.jpg",
     )
-    NATFEED = ("https://telegra.ph/file/2dd04f407b16bc2cfdf76.jpg",)
     BUTTON = [[Button.url("Go To Support Group", f"https://t.me/{SUPPORT_CHAT}")]]
     TEXT = "Thanks For Your Feedback, I Hope You Happy With Our Service"
-    GIVE = "Give Some Text For Feedback ✨"
     logger_text = f"""
 **New Feedback**
 
@@ -43,6 +41,8 @@ async def feedback(e):
 **Feedback:** `{e.text}`
 """
     if e.sender_id != OWNER_ID and not quew:
+        NATFEED = ("https://telegra.ph/file/2dd04f407b16bc2cfdf76.jpg",)
+        GIVE = "Give Some Text For Feedback ✨"
         await e.reply(
             GIVE,
             parse_mode=ParseMode.MARKDOWN,

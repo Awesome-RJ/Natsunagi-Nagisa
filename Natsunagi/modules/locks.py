@@ -175,9 +175,9 @@ def lock(update: Update, context: CallbackContext) -> str:  # sourcery no-metric
         if len(args) >= 1:
             ltype = args[0].lower()
             if ltype in LOCK_TYPES:
-                # Connection check
-                conn = connected(context.bot, update, chat, user.id, need_admin=True)
-                if conn:
+                if conn := connected(
+                    context.bot, update, chat, user.id, need_admin=True
+                ):
                     chat = dispatcher.bot.getChat(conn)
                     # chat_id = conn
                     chat_name = chat.title
@@ -208,9 +208,9 @@ def lock(update: Update, context: CallbackContext) -> str:  # sourcery no-metric
                 )
 
             if ltype in LOCK_CHAT_RESTRICTION:
-                # Connection check
-                conn = connected(context.bot, update, chat, user.id, need_admin=True)
-                if conn:
+                if conn := connected(
+                    context.bot, update, chat, user.id, need_admin=True
+                ):
                     chat = dispatcher.bot.getChat(conn)
                     chat_id = conn
                     chat_name = chat.title
@@ -278,9 +278,9 @@ def unlock(update: Update, context: CallbackContext) -> str:  # sourcery no-metr
     if len(args) >= 1:
         ltype = args[0].lower()
         if ltype in LOCK_TYPES:
-            # Connection check
-            conn = connected(context.bot, update, chat, user.id, need_admin=True)
-            if conn:
+            if conn := connected(
+                context.bot, update, chat, user.id, need_admin=True
+            ):
                 chat = context.bot.getChat(conn)
                 # chat_id = conn
                 chat_name = chat.title
@@ -310,9 +310,9 @@ def unlock(update: Update, context: CallbackContext) -> str:  # sourcery no-metr
             )
 
         if ltype in UNLOCK_CHAT_RESTRICTION:
-            # Connection check
-            conn = connected(context.bot, update, chat, user.id, need_admin=True)
-            if conn:
+            if conn := connected(
+                context.bot, update, chat, user.id, need_admin=True
+            ):
                 chat = dispatcher.bot.getChat(conn)
                 chat_id = conn
                 chat_name = chat.title
@@ -456,49 +456,57 @@ def build_lock_message(chat_id):
     locks = sql.get_locks(chat_id)
     res = ""
     locklist = []
-    permslist = []
     if locks:
         res += "*" + "These are the current locks in this Chat:" + "*"
-        locklist.append("sticker = `{}`".format(locks.sticker))
-        locklist.append("audio = `{}`".format(locks.audio))
-        locklist.append("voice = `{}`".format(locks.voice))
-        locklist.append("document = `{}`".format(locks.document))
-        locklist.append("video = `{}`".format(locks.video))
-        locklist.append("contact = `{}`".format(locks.contact))
-        locklist.append("photo = `{}`".format(locks.photo))
-        locklist.append("gif = `{}`".format(locks.gif))
-        locklist.append("url = `{}`".format(locks.url))
-        locklist.append("bots = `{}`".format(locks.bots))
-        locklist.append("forward = `{}`".format(locks.forward))
-        locklist.append("game = `{}`".format(locks.game))
-        locklist.append("location = `{}`".format(locks.location))
-        locklist.append("rtl = `{}`".format(locks.rtl))
-        locklist.append("button = `{}`".format(locks.button))
-        locklist.append("egame = `{}`".format(locks.egame))
-        locklist.append("inline = `{}`".format(locks.inline))
-        locklist.append("apk = `{}`".format(locks.apk))
-        locklist.append("doc = `{}`".format(locks.doc))
-        locklist.append("exe = `{}`".format(locks.exe))
-        locklist.append("jpg = `{}`".format(locks.jpg))
-        locklist.append("mp3 = `{}`".format(locks.mp3))
-        locklist.append("pdf = `{}`".format(locks.pdf))
-        locklist.append("txt = `{}`".format(locks.txt))
-        locklist.append("xml = `{}`".format(locks.xml))
-        locklist.append("zip = `{}`".format(locks.zip))
-        locklist.append("docx = `{}`".format(locks.docx))
-        locklist.append("py = `{}`".format(locks.py))
-        locklist.append("svg = `{}`".format(locks.svg))
-        locklist.append("targz = `{}`".format(locks.targz))
-        locklist.append("wav = `{}`".format(locks.wav))
+        locklist.extend(
+            (
+                "sticker = `{}`".format(locks.sticker),
+                "audio = `{}`".format(locks.audio),
+                "voice = `{}`".format(locks.voice),
+                "document = `{}`".format(locks.document),
+                "video = `{}`".format(locks.video),
+                "contact = `{}`".format(locks.contact),
+                "photo = `{}`".format(locks.photo),
+                "gif = `{}`".format(locks.gif),
+                "url = `{}`".format(locks.url),
+                "bots = `{}`".format(locks.bots),
+                "forward = `{}`".format(locks.forward),
+                "game = `{}`".format(locks.game),
+                "location = `{}`".format(locks.location),
+                "rtl = `{}`".format(locks.rtl),
+                "button = `{}`".format(locks.button),
+                "egame = `{}`".format(locks.egame),
+                "inline = `{}`".format(locks.inline),
+                "apk = `{}`".format(locks.apk),
+                "doc = `{}`".format(locks.doc),
+                "exe = `{}`".format(locks.exe),
+                "jpg = `{}`".format(locks.jpg),
+                "mp3 = `{}`".format(locks.mp3),
+                "pdf = `{}`".format(locks.pdf),
+                "txt = `{}`".format(locks.txt),
+                "xml = `{}`".format(locks.xml),
+                "zip = `{}`".format(locks.zip),
+                "docx = `{}`".format(locks.docx),
+                "py = `{}`".format(locks.py),
+                "svg = `{}`".format(locks.svg),
+                "targz = `{}`".format(locks.targz),
+                "wav = `{}`".format(locks.wav),
+            )
+        )
+
     permissions = dispatcher.bot.get_chat(chat_id).permissions
-    permslist.append("messages = `{}`".format(permissions.can_send_messages))
-    permslist.append("media = `{}`".format(permissions.can_send_media_messages))
-    permslist.append("poll = `{}`".format(permissions.can_send_polls))
-    permslist.append("other = `{}`".format(permissions.can_send_other_messages))
-    permslist.append("previews = `{}`".format(permissions.can_add_web_page_previews))
-    permslist.append("info = `{}`".format(permissions.can_change_info))
-    permslist.append("invite = `{}`".format(permissions.can_invite_users))
-    permslist.append("pin = `{}`".format(permissions.can_pin_messages))
+    permslist = list(
+        (
+            "messages = `{}`".format(permissions.can_send_messages),
+            "media = `{}`".format(permissions.can_send_media_messages),
+            "poll = `{}`".format(permissions.can_send_polls),
+            "other = `{}`".format(permissions.can_send_other_messages),
+            "previews = `{}`".format(permissions.can_add_web_page_previews),
+            "info = `{}`".format(permissions.can_change_info),
+            "invite = `{}`".format(permissions.can_invite_users),
+            "pin = `{}`".format(permissions.can_pin_messages),
+        )
+    )
 
     if locklist:
         # Ordering lock list

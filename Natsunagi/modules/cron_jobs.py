@@ -92,8 +92,7 @@ def term(cmd, info):
     )
     stdout, stderr = process.communicate()
     stderr = stderr.decode()
-    stdout = stdout.decode()
-    if stdout:
+    if stdout := stdout.decode():
         LOGGER.info(f"{info} successful!")
         LOGGER.info(f"{stdout}")
     if stderr:
